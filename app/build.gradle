@@ -1,25 +1,35 @@
 apply plugin: 'com.android.application'
 
 android {
+    compileSdkVersion 28
+    buildToolsVersion '26.0.3'
+
+    defaultConfig {
+        applicationId "com.yoursite.app"
+        minSdkVersion 19
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+    }
+
     buildTypes {
         release {
             minifyEnabled false
-            shrinkResources false
-            signingConfig signingConfigs.release
-            // Ensure APK is built (default behavior; no bundle-only configuration)
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            // Comment out signingConfig if you don't have a keystore
+            // signingConfig signingConfigs.release
         }
     }
-   // Remove any settings that disable APK builds
-   bundle {
-      storeArchive {
-         enable = false
-      }
-  }
 
-    // Optional: Add this to explicitly enable APK outputs
-    publishing {
-        singleVariant("release") {
-            withSourcesJar()
+    // Enable both APK and AAB outputs
+    bundle {
+        storeArchive {
+            enable true
         }
     }
+}
+
+dependencies {
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support:support-v4:28.0.0'
 }
