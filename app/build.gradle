@@ -9,12 +9,12 @@ android {
             // Ensure APK is built (default behavior; no bundle-only configuration)
         }
     }
-+   // Remove any settings that disable APK builds
-+   bundle {
-+       storeArchive {
-+           enable = false
-+       }
-+   }
+   // Remove any settings that disable APK builds
+   bundle {
+      storeArchive {
+         enable = false
+      }
+  }
 
     // Optional: Add this to explicitly enable APK outputs
     publishing {
