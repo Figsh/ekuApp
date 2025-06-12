@@ -55,7 +55,9 @@ public class Main extends Activity {
 		webView.getSettings().setJavaScriptEnabled(true);
 		webView.getSettings().setDomStorageEnabled(true);
 		webView.getSettings().setAllowFileAccess(true);
+		webView.getSettings().setAllowContentAccess(true);
 		webView.getSettings().setJavaScriptCanOpenWindowAutomatically(true);
+		webView.getSettings().setMixedContentMode(webView.getSettings.MIXED_CONTENT_ALWAYS_ALLOW);
 		webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
 
 		CookieManager.setAcceptFileSchemeCookies(true);
