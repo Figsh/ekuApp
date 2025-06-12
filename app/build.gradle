@@ -22,11 +22,7 @@ android {
     }
 
     // Enable both APK and AAB outputs
-    bundle {
-        storeArchive {
-            enable true
-        }
-    }
+    
 }
 
 dependencies {
