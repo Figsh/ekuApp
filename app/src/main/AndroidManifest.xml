@@ -4,21 +4,25 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
+    <!-- ✅ Add this line -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" android:hardwareAccelerated="true">
+        android:theme="@style/AppTheme"
+        android:hardwareAccelerated="true">
+
         <activity
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
             android:name="com.yoursite.app.Main"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    </application>
 
+    </application>
 </manifest>
