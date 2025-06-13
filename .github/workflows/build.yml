@@ -35,6 +35,9 @@ jobs:
           convert "$ICON_PATH" -resize 96x96  app/src/main/res/mipmap-xhdpi/ic_launcher.png
           convert "$ICON_PATH" -resize 144x144 app/src/main/res/mipmap-xxhdpi/ic_launcher.png
           convert "$ICON_PATH" -resize 192x192 app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+          convert "$ICON_PATH" -resize 192x192 app/src/main/ic_launcher-web.png
+          convert "$ICON_PATH" -resize 192x192 app/src/main/res/ic_launcher.png
+          
 
       - name: Replace App Name (if provided)
         if: ${{ hashFiles('app/uploaded/app_name.txt') != '' }}
