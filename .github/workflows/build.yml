@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - 'app/src/main/assets/**'
+      - 'app/uploaded/**'
       - '.github/workflows/**'
 
 jobs:
@@ -20,6 +21,26 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '11'
+
+      - name: Replace App Icon (if provided)
+        if: ${{ hashFiles('app/uploaded/icon.png') != '' }}
+        run: |
+          ICON_PATH=app/uploaded/icon.png
+
+          sudo apt-get update
+          sudo apt-get install -y imagemagick
+
+          convert "$ICON_PATH" -resize 48x48  app/src/main/res/mipmap-mdpi/ic_launcher.png
+          convert "$ICON_PATH" -resize 72x72  app/src/main/res/mipmap-hdpi/ic_launcher.png
+          convert "$ICON_PATH" -resize 96x96  app/src/main/res/mipmap-xhdpi/ic_launcher.png
+          convert "$ICON_PATH" -resize 144x144 app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+          convert "$ICON_PATH" -resize 192x192 app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+
+      - name: Replace App Name (if provided)
+        if: ${{ hashFiles('app/uploaded/app_name.txt') != '' }}
+        run: |
+          APP_NAME=$(cat app/uploaded/app_name.txt)
+          sed -i "s|<string name=\"app_name\">.*</string>|<string name=\"app_name\">$APP_NAME</string>|" app/src/main/res/values/strings.xml
 
       - name: Make Gradle Executable
         run: chmod +x ./gradlew
