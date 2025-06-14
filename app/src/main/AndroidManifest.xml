@@ -20,7 +20,7 @@
 
         <activity
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-            android:name="com.yoursite.app.Main"
+            android:name="com.figsh.edi.Main"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
