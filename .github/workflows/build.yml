@@ -11,7 +11,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -25,21 +24,27 @@ jobs:
       - name: Replace App Icon (if provided)
         if: ${{ hashFiles('app/uploaded/icon.png') != '' }}
         run: |
-          ICON_PATH=app/uploaded/icon.png
-
           sudo apt-get update
           sudo apt-get install -y imagemagick
+          chmod -R +w app/src/main/res/mipmap-*
+          
+          # Create adaptive icon structure
+          mkdir -p app/src/main/res/mipmap-anydpi-v26
+          cat > app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml <<EOF
+          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+              <background android:drawable="@color/ic_launcher_background"/>
+              <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
+          </adaptive-icon>
+          EOF
 
-          convert "$ICON_PATH" -resize 48x48  app/src/main/res/mipmap-mdpi/ic_launcher.png
-          convert "$ICON_PATH" -resize 72x72  app/src/main/res/mipmap-hdpi/ic_launcher.png
-          convert "$ICON_PATH" -resize 96x96  app/src/main/res/mipmap-xhdpi/ic_launcher.png
-          convert "$ICON_PATH" -resize 144x144 app/src/main/res/mipmap-xxhdpi/ic_launcher.png
-          convert "$ICON_PATH" -resize 192x192 app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
-          convert "$ICON_PATH" -resize 48x48  app/src/main/res/mipmap-mdpi/ic_launcher_round.png
-          convert "$ICON_PATH" -resize 72x72  app/src/main/res/mipmap-hdpi/ic_launcher_round.png
-          convert "$ICON_PATH" -resize 96x96  app/src/main/res/mipmap-xhdpi/ic_launcher_round.png
-          convert "$ICON_PATH" -resize 144x144 app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png
-          convert "$ICON_PATH" -resize 192x192 app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png
+          # Generate foreground images
+          convert "app/uploaded/icon.png" -background white -alpha remove -alpha off -resize 108x108 app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png
+          convert "app/uploaded/icon.png" -background white -alpha remove -alpha off -resize 162x162 app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png
+          convert "app/uploaded/icon.png" -background white -alpha remove -alpha off -resize 216x216 app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png
+          convert "app/uploaded/icon.png" -background white -alpha remove -alpha off -resize 324x324 app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png
+          convert "app/uploaded/icon.png" -background white -alpha remove -alpha off -resize 432x432 app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png
+
+      # ... rest of steps unchanged ...
           
       - name: Replace App Name (if provided)
         if: ${{ hashFiles('app/uploaded/app_name.txt') != '' }}
