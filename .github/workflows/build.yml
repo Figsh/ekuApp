@@ -31,47 +31,44 @@ jobs:
           sudo apt-get install -y imagemagick
           chmod -R +w app/src/main/res
 
-          # Remove existing vector foreground if present
+          # Remove old XML foreground/icon resources if they exist
           rm -f app/src/main/res/drawable-*/ic_launcher_foreground.xml
+          rm -f app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml || true
 
-          # Create directories for bitmap foreground in multiple densities
-          mkdir -p app/src/main/res/drawable-mdpi
-          mkdir -p app/src/main/res/drawable-hdpi
-          mkdir -p app/src/main/res/drawable-xhdpi
-          mkdir -p app/src/main/res/drawable-xxhdpi
-          mkdir -p app/src/main/res/drawable-xxxhdpi
+          # Generate mipmap icons for adaptive foreground
+          convert "app/uploaded/icon.png" -resize 48x48  app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png
+          convert "app/uploaded/icon.png" -resize 72x72  app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png
+          convert "app/uploaded/icon.png" -resize 96x96  app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png
+          convert "app/uploaded/icon.png" -resize 144x144 app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png
+          convert "app/uploaded/icon.png" -resize 192x192 app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png
 
-          # Recreate the adaptive icon XML to use the bitmap foreground
-          mkdir -p app/src/main/res/mipmap-anydpi-v26
-          cat > app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml <<EOF
-          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-           <background android:drawable="@drawable/ic_launcher_background"/>
-           <foreground android:drawable="@drawable/ic_launcher_foreground"/>
-          </adaptive-icon>
-          EOF
-
-          # Generate the foreground images in the created directories
-          convert "app/uploaded/icon.png" -background white -alpha remove -alpha off -resize 108x108 app/src/main/res/drawable-mdpi/ic_launcher_foreground.png
-          convert "app/uploaded/icon.png" -background white -alpha remove -alpha off -resize 162x162 app/src/main/res/drawable-hdpi/ic_launcher_foreground.png
-          convert "app/uploaded/icon.png" -background white -alpha remove -alpha off -resize 216x216 app/src/main/res/drawable-xhdpi/ic_launcher_foreground.png
-          convert "app/uploaded/icon.png" -background white -alpha remove -alpha off -resize 324x324 app/src/main/res/drawable-xxhdpi/ic_launcher_foreground.png
-          convert "app/uploaded/icon.png" -background white -alpha remove -alpha off -resize 432x432 app/src/main/res/drawable-xxxhdpi/ic_launcher_foreground.png
-
-          # Also replace the legacy icons (mipmap-*dpi) as in the original workflow
+          # Replace the legacy launcher icons
           convert "app/uploaded/icon.png" -resize 48x48  app/src/main/res/mipmap-mdpi/ic_launcher.png
           convert "app/uploaded/icon.png" -resize 72x72  app/src/main/res/mipmap-hdpi/ic_launcher.png
           convert "app/uploaded/icon.png" -resize 96x96  app/src/main/res/mipmap-xhdpi/ic_launcher.png
           convert "app/uploaded/icon.png" -resize 144x144 app/src/main/res/mipmap-xxhdpi/ic_launcher.png
           convert "app/uploaded/icon.png" -resize 192x192 app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+
+          # Replace round icons
           convert "app/uploaded/icon.png" -resize 48x48  app/src/main/res/mipmap-mdpi/ic_launcher_round.png
           convert "app/uploaded/icon.png" -resize 72x72  app/src/main/res/mipmap-hdpi/ic_launcher_round.png
           convert "app/uploaded/icon.png" -resize 96x96  app/src/main/res/mipmap-xhdpi/ic_launcher_round.png
           convert "app/uploaded/icon.png" -resize 144x144 app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png
           convert "app/uploaded/icon.png" -resize 192x192 app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png
 
-          # Verify
-          tree app/src/main/res || true
+          # Recreate the adaptive icon XML to use the mipmap PNGs
+          mkdir -p app/src/main/res/mipmap-anydpi-v26
+          cat > app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml <<EOF
+          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+              <background android:drawable="@mipmap/ic_launcher_background"/>
+              <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
+          </adaptive-icon>
+          EOF
 
+          # Debug output
+          echo "Icon replacement complete. Directory listing:"
+          find app/src/main/res -type f -iname '*ic_launcher*'
+          
       - name: Replace App Name (if provided)
         if: ${{ hashFiles('app/uploaded/app_name.txt') != '' }}
         run: |
