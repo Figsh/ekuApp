@@ -25,24 +25,22 @@ jobs:
       - name: Replace Icon (if uploaded)
         run: |
           ICON_PATH="app/uploaded/icon.png"
+          TARGET_DIR="app/src/main/res/"
+
           if [ -f "$ICON_PATH" ]; then
             echo "Custom icon found. Installing ImageMagick and replacing..."
             sudo apt-get update
             sudo apt-get install -y imagemagick
 
-            mkdir -p app/src/main/res/mipmap-mdpi
-            mkdir -p app/src/main/res/mipmap-hdpi
-            mkdir -p app/src/main/res/mipmap-xhdpi
-            mkdir -p app/src/main/res/mipmap-xxhdpi
-            mkdir -p app/src/main/res/mipmap-xxxhdpi
+            for SIZE in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
+            mkdir -p "$TARGET_DIR/mipmap-$SIZE"
+            convert "$ICON_PATH" -resize $(echo "$SIZE" | sed -e 's/mdpi/48/' -e 's/hdpi/72/' -e 's/xhdpi/96/' -e 's/xxhdpi/144/' -e 's/xxxhdpi/192/')x \
+            "$TARGET_DIR/mipmap-$SIZE/ic_launcher.png"
+            done
 
-            convert "$ICON_PATH" -resize 48x48  app/src/main/res/mipmap-mdpi/ic_launcher.png
-            convert "$ICON_PATH" -resize 72x72  app/src/main/res/mipmap-hdpi/ic_launcher.png
-            convert "$ICON_PATH" -resize 96x96  app/src/main/res/mipmap-xhdpi/ic_launcher.png
-            convert "$ICON_PATH" -resize 144x144 app/src/main/res/mipmap-xxhdpi/ic_launcher.png
-            convert "$ICON_PATH" -resize 192x192 app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
-          else
-            echo "No custom icon uploaded. Skipping icon replacement."
+            echo "Icon replacement completed successfully!"
+           else
+           echo "No custom icon uploaded. Skipping icon replacement."
           fi
 
       - name: Make Gradle Executable
