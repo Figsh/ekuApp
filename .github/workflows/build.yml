@@ -15,8 +15,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # Get full history for file checks
 
       - name: Set up Java
         uses: actions/setup-java@v3
@@ -24,70 +22,34 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
 
-      - name: Replace App Icon (if provided)
-        if: ${{ hashFiles('app/uploaded/icon.png') != '' }}
+      - name: Replace Icon (if uploaded)
         run: |
-          sudo apt-get update
-          sudo apt-get install -y imagemagick
-          chmod -R +w app/src/main/res
+          ICON_PATH="app/uploaded/icon.png"
+          if [ -f "$ICON_PATH" ]; then
+            echo "Custom icon found. Installing ImageMagick and replacing..."
+            sudo apt-get update
+            sudo apt-get install -y imagemagick
 
-          # Remove old XML foreground/icon resources if they exist
-          rm -f app/src/main/res/drawable-*/ic_launcher_foreground.xml
-          rm -f app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml || true
+            mkdir -p app/src/main/res/mipmap-mdpi
+            mkdir -p app/src/main/res/mipmap-hdpi
+            mkdir -p app/src/main/res/mipmap-xhdpi
+            mkdir -p app/src/main/res/mipmap-xxhdpi
+            mkdir -p app/src/main/res/mipmap-xxxhdpi
 
-          # Generate mipmap icons for adaptive foreground
-          convert "app/uploaded/icon.png" -resize 48x48  app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png
-          convert "app/uploaded/icon.png" -resize 72x72  app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png
-          convert "app/uploaded/icon.png" -resize 96x96  app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png
-          convert "app/uploaded/icon.png" -resize 144x144 app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png
-          convert "app/uploaded/icon.png" -resize 192x192 app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png
-
-          # Replace the legacy launcher icons
-          convert "app/uploaded/icon.png" -resize 48x48  app/src/main/res/mipmap-mdpi/ic_launcher.png
-          convert "app/uploaded/icon.png" -resize 72x72  app/src/main/res/mipmap-hdpi/ic_launcher.png
-          convert "app/uploaded/icon.png" -resize 96x96  app/src/main/res/mipmap-xhdpi/ic_launcher.png
-          convert "app/uploaded/icon.png" -resize 144x144 app/src/main/res/mipmap-xxhdpi/ic_launcher.png
-          convert "app/uploaded/icon.png" -resize 192x192 app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
-
-          # Replace round icons
-          convert "app/uploaded/icon.png" -resize 48x48  app/src/main/res/mipmap-mdpi/ic_launcher_round.png
-          convert "app/uploaded/icon.png" -resize 72x72  app/src/main/res/mipmap-hdpi/ic_launcher_round.png
-          convert "app/uploaded/icon.png" -resize 96x96  app/src/main/res/mipmap-xhdpi/ic_launcher_round.png
-          convert "app/uploaded/icon.png" -resize 144x144 app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png
-          convert "app/uploaded/icon.png" -resize 192x192 app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png
-
-          # Recreate the adaptive icon XML to use the mipmap PNGs
-          mkdir -p app/src/main/res/mipmap-anydpi-v26
-          cat > app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml <<EOF
-          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-              <background android:drawable="@mipmap/ic_launcher_background"/>
-              <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
-          </adaptive-icon>
-          EOF
-
-          # Debug output
-          echo "Icon replacement complete. Directory listing:"
-          find app/src/main/res -type f -iname '*ic_launcher*'
-          
-      - name: Replace App Name (if provided)
-        if: ${{ hashFiles('app/uploaded/app_name.txt') != '' }}
-        run: |
-          APP_NAME=$(cat app/uploaded/app_name.txt)
-          sed -i "s|<string name=\"app_name\">.*</string>|<string name=\"app_name\">$APP_NAME</string>|" app/src/main/res/values/strings.xml
-          echo "Updated app name to: $APP_NAME"
-
-      - name: Verify AndroidManifest
-        run: |
-          echo "=== AndroidManifest icon reference ==="
-          grep "android:icon" app/src/main/AndroidManifest.xml || true
+            convert "$ICON_PATH" -resize 48x48  app/src/main/res/mipmap-mdpi/ic_launcher.png
+            convert "$ICON_PATH" -resize 72x72  app/src/main/res/mipmap-hdpi/ic_launcher.png
+            convert "$ICON_PATH" -resize 96x96  app/src/main/res/mipmap-xhdpi/ic_launcher.png
+            convert "$ICON_PATH" -resize 144x144 app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+            convert "$ICON_PATH" -resize 192x192 app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+          else
+            echo "No custom icon uploaded. Skipping icon replacement."
+          fi
 
       - name: Make Gradle Executable
         run: chmod +x ./gradlew
 
       - name: Build APK and AAB
-        run: |
-          ./gradlew clean
-          ./gradlew assembleRelease bundleRelease --stacktrace
+        run: ./gradlew assembleRelease bundleRelease
 
       - name: Upload APK and AAB
         uses: actions/upload-artifact@v4
