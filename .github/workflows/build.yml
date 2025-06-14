@@ -22,7 +22,7 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
 
-      - name: Replace Icon (if uploaded)
+      
       
 
       - name: Make Gradle Executable
