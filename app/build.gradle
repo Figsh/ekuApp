@@ -5,7 +5,7 @@ android {
     buildToolsVersion '26.0.3'
 
     defaultConfig {
-        applicationId "com.yoursite.app"
+        applicationId "com.figsh.edi"
         minSdkVersion 19
         targetSdkVersion 28
         versionCode 1
