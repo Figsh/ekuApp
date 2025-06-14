@@ -1,4 +1,4 @@
-package com.yoursite.app;
+package com.figsh.edi;
 
 import android.app.Activity;
 import android.app.AlertDialog;
