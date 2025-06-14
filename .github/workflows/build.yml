@@ -22,27 +22,26 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
 
-       - name: Replace App Icon (if provided)
-   if: ${{ hashFiles('app/uploaded/icon.png') != '' }}
-   run: |
-     ICON_PATH=app/uploaded/icon.png
+      - name: Replace App Icon (if provided)
+        if: ${{ hashFiles('app/uploaded/icon.png') != '' }}
+        run: |
+          ICON_PATH=app/uploaded/icon.png
 
-     sudo apt-get update
-     sudo apt-get install -y imagemagick
+          sudo apt-get update
+          sudo apt-get install -y imagemagick
 
-     convert "$ICON_PATH" -resize 48x48  app/src/main/res/mipmap-mdpi/ic_launcher.png
-     convert "$ICON_PATH" -resize 72x72  app/src/main/res/mipmap-hdpi/ic_launcher.png
-     convert "$ICON_PATH" -resize 96x96  app/src/main/res/mipmap-xhdpi/ic_launcher.png
-     convert "$ICON_PATH" -resize 144x144 app/src/main/res/mipmap-xxhdpi/ic_launcher.png
-     convert "$ICON_PATH" -resize 192x192 app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
-     convert "$ICON_PATH" -resize 48x48  app/src/main/res/mipmap-mdpi/ic_launcher_round.png
-     convert "$ICON_PATH" -resize 72x72  app/src/main/res/mipmap-hdpi/ic_launcher_round.png
-     convert "$ICON_PATH" -resize 96x96  app/src/main/res/mipmap-xhdpi/ic_launcher_round.png
-     convert "$ICON_PATH" -resize 144x144 app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png
-     convert "$ICON_PATH" -resize 192x192 app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png
-    
-    
-  - name: Replace App Name (if provided)
+          convert "$ICON_PATH" -resize 48x48  app/src/main/res/mipmap-mdpi/ic_launcher.png
+          convert "$ICON_PATH" -resize 72x72  app/src/main/res/mipmap-hdpi/ic_launcher.png
+          convert "$ICON_PATH" -resize 96x96  app/src/main/res/mipmap-xhdpi/ic_launcher.png
+          convert "$ICON_PATH" -resize 144x144 app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+          convert "$ICON_PATH" -resize 192x192 app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+          convert "$ICON_PATH" -resize 48x48  app/src/main/res/mipmap-mdpi/ic_launcher_round.png
+          convert "$ICON_PATH" -resize 72x72  app/src/main/res/mipmap-hdpi/ic_launcher_round.png
+          convert "$ICON_PATH" -resize 96x96  app/src/main/res/mipmap-xhdpi/ic_launcher_round.png
+          convert "$ICON_PATH" -resize 144x144 app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png
+          convert "$ICON_PATH" -resize 192x192 app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png
+          
+      - name: Replace App Name (if provided)
         if: ${{ hashFiles('app/uploaded/app_name.txt') != '' }}
         run: |
           APP_NAME=$(cat app/uploaded/app_name.txt)
