@@ -23,7 +23,13 @@ jobs:
           java-version: '11'
 
       
-      
+
+      - name: Remove Adaptive Icon XMLs
+        run: |
+          rm -f app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+          rm -f app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+          rm -f app/src/main/res/drawable/ic_launcher_foreground.xml
+          rm -f app/src/main/res/drawable/ic_launcher_background.xml
 
       - name: Make Gradle Executable
         run: chmod +x ./gradlew
