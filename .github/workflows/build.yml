@@ -11,9 +11,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Get full history for file checks
 
       - name: Set up Java
         uses: actions/setup-java@v3
@@ -24,39 +27,62 @@ jobs:
       - name: Replace App Icon (if provided)
         if: ${{ hashFiles('app/uploaded/icon.png') != '' }}
         run: |
+          # 1. Install dependencies
           sudo apt-get update
-          sudo apt-get install -y imagemagick
-          chmod -R +w app/src/main/res/mipmap-*
+          sudo apt-get install -y imagemagick tree
           
-          # Create adaptive icon structure
+          # 2. Check source icon
+          echo "=== Source icon details ==="
+          identify app/uploaded/icon.png
+          
+          # 3. Verify existing files
+          echo "=== Existing mipmap files before replacement ==="
+          tree app/src/main/res/ || true
+          
+          # 4. Remove existing adaptive icons
+          rm -rf app/src/main/res/mipmap-anydpi-v26
+          
+          # 5. Create new adaptive icons
           mkdir -p app/src/main/res/mipmap-anydpi-v26
           cat > app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml <<EOF
           <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-              <background android:drawable="@color/ic_launcher_background"/>
-              <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
+              <background android:drawable="@drawable/ic_launcher_background"/>
+              <foreground android:drawable="@drawable/ic_launcher_foreground"/>
           </adaptive-icon>
           EOF
-
-          # Generate foreground images
-          convert "app/uploaded/icon.png" -background white -alpha remove -alpha off -resize 108x108 app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png
-          convert "app/uploaded/icon.png" -background white -alpha remove -alpha off -resize 162x162 app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png
-          convert "app/uploaded/icon.png" -background white -alpha remove -alpha off -resize 216x216 app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png
-          convert "app/uploaded/icon.png" -background white -alpha remove -alpha off -resize 324x324 app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png
-          convert "app/uploaded/icon.png" -background white -alpha remove -alpha off -resize 432x432 app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png
-
-      # ... rest of steps unchanged ...
           
+          # 6. Generate foreground images
+          convert "app/uploaded/icon.png" -background white -alpha remove -alpha off -resize 108x108 app/src/main/res/drawable-mdpi/ic_launcher_foreground.png
+          convert "app/uploaded/icon.png" -background white -alpha remove -alpha off -resize 162x162 app/src/main/res/drawable-hdpi/ic_launcher_foreground.png
+          convert "app/uploaded/icon.png" -background white -alpha remove -alpha off -resize 216x216 app/src/main/res/drawable-xhdpi/ic_launcher_foreground.png
+          convert "app/uploaded/icon.png" -background white -alpha remove -alpha off -resize 324x324 app/src/main/res/drawable-xxhdpi/ic_launcher_foreground.png
+          convert "app/uploaded/icon.png" -background white -alpha remove -alpha off -resize 432x432 app/src/main/res/drawable-xxxhdpi/ic_launcher_foreground.png
+          
+          # 7. Verify changes
+          echo "=== Generated files ==="
+          ls -lR app/src/main/res/mipmap* app/src/main/res/drawable*
+          echo "=== File modifications ==="
+          git diff --name-only || true
+
       - name: Replace App Name (if provided)
         if: ${{ hashFiles('app/uploaded/app_name.txt') != '' }}
         run: |
           APP_NAME=$(cat app/uploaded/app_name.txt)
           sed -i "s|<string name=\"app_name\">.*</string>|<string name=\"app_name\">$APP_NAME</string>|" app/src/main/res/values/strings.xml
+          echo "Updated app name to: $APP_NAME"
+
+      - name: Verify AndroidManifest
+        run: |
+          echo "=== AndroidManifest icon reference ==="
+          grep "android:icon" app/src/main/AndroidManifest.xml || true
 
       - name: Make Gradle Executable
         run: chmod +x ./gradlew
 
       - name: Build APK and AAB
-        run: ./gradlew assembleRelease bundleRelease
+        run: |
+          ./gradlew clean
+          ./gradlew assembleRelease bundleRelease --stacktrace
 
       - name: Upload APK and AAB
         uses: actions/upload-artifact@v4
