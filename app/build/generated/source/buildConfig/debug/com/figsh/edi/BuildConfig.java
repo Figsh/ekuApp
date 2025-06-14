@@ -1,7 +1,7 @@
 /**
  * Automatically generated file. DO NOT MODIFY
  */
-package com.yoursite.app;
+package com.figsh.edi;
 
 public final class BuildConfig {
   public static final boolean DEBUG = Boolean.parseBoolean("true");
