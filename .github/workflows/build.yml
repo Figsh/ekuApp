@@ -23,25 +23,7 @@ jobs:
           java-version: '11'
 
       - name: Replace Icon (if uploaded)
-        run: |
-          ICON_PATH="app/uploaded/icon.png"
-          TARGET_DIR="app/src/main/res/"
-
-          if [ -f "$ICON_PATH" ]; then
-            echo "Custom icon found. Installing ImageMagick and replacing..."
-            sudo apt-get update
-            sudo apt-get install -y imagemagick
-
-            for SIZE in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
-            mkdir -p "$TARGET_DIR/mipmap-$SIZE"
-            convert "$ICON_PATH" -resize $(echo "$SIZE" | sed -e 's/mdpi/48/' -e 's/hdpi/72/' -e 's/xhdpi/96/' -e 's/xxhdpi/144/' -e 's/xxxhdpi/192/')x \
-            "$TARGET_DIR/mipmap-$SIZE/ic_launcher.png"
-            done
-
-            echo "Icon replacement completed successfully!"
-           else
-           echo "No custom icon uploaded. Skipping icon replacement."
-          fi
+      
 
       - name: Make Gradle Executable
         run: chmod +x ./gradlew
