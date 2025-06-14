@@ -5,7 +5,7 @@ on:
   push:
     paths:
       - 'app/src/main/assets/**'
-      - 'app/src/main/res/**'
+      - 'app/src/main/**'
       - '.github/workflows/**'
 
 jobs:
